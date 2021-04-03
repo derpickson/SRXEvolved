@@ -21,6 +21,7 @@
 #define LCD_WIDTH 384
 #define LCD_HEIGHT 136
 
+
 //
 // Simplified pin numbering scheme uses a hex number to specify the port number
 // and bit. Top 4 bits = port (B/D/E/F/G), bottom 3 bits specify the bit of the port
@@ -83,7 +84,9 @@ void SRXERectangle(int x, int y, int cx, int cy, byte color, byte bFilled);
 // Draw a string of normal (9x8), small (6x8) or large (15x16) characters
 // At the given col+row
 //
-int SRXEWriteString(int x, int y, char *szMsg, int iSize, int iFGColor, int iBGColor);
+//int SRXEWriteString(int x, int y, char *szMsg, int iSize, int iFGColor, int iBGColor);
+int SRXEWriteString(int x, int y, char *szMsg,int iSize, const unsigned char ucFont[], int iFGColor, int iBGColor); //small font 576 bytes
+
 // Fill the frame buffer with a byte pattern
 // e.g. all off (0x00) or all on (0xff)
 void SRXEFill(byte ucData);
@@ -123,4 +126,3 @@ int SRXEFlashWritePage(uint32_t ulAddr, uint8_t *pSrc);
 int SRXEFlashRead(uint32_t ulAddr, uint8_t *pDest, int iLen);
 
 #endif // __SMART_RESPONSE_XE__
-
