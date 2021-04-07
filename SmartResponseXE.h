@@ -4,6 +4,15 @@
 // Copyright (C) 2018 BitBank Software, Inc.
 // Project started 8/4/2018
 //
+
+/*
+Added SRXEdrawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color )
+Added SRXEwriteLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
+Added SRXEdrawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color)
+LeRoy Miller, kd8bxp April 2021
+Brutally lifted from Adafruit GFX library and modified to work with Smart Response XE 
+*/
+
 #ifndef __SMART_RESPONSE_XE__
 #define __SMART_RESPONSE_XE__
 
@@ -124,5 +133,40 @@ int SRXEFlashWritePage(uint32_t ulAddr, uint8_t *pSrc);
 // Read N bytes from SPI flash
 //
 int SRXEFlashRead(uint32_t ulAddr, uint8_t *pDest, int iLen);
+
+// Brutally lifted from Adafruit GFX library and modified to almost work with Smart Response XE - LeRoy Miller, kd8bxp April 2021
+
+/*!
+   @brief    Draw a circle outline
+    @param    x0   Center-point x coordinate
+    @param    y0   Center-point y coordinate
+    @param    r   Radius of circle
+    @param    color 0 - off, to 3 (full on)
+*/
+void SRXEdrawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color );
+
+/*!
+   @brief    Write a line.  Bresenham's algorithm - thx wikpedia
+    @param    x0  Start point x coordinate
+    @param    y0  Start point y coordinate
+    @param    x1  End point x coordinate
+    @param    y1  End point y coordinate
+    @param    color 0 - off, to 3 (full on)
+*/
+void SRXEwriteLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
+
+/*!
+   @brief   Draw a triangle with no fill color
+    @param    x0  Vertex #0 x coordinate
+    @param    y0  Vertex #0 y coordinate
+    @param    x1  Vertex #1 x coordinate
+    @param    y1  Vertex #1 y coordinate
+    @param    x2  Vertex #2 x coordinate
+    @param    y2  Vertex #2 y coordinate
+    @param    color 0 - off, to 3 (full on)
+*/
+void SRXEdrawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
+
+//end lifted from Adafruit GFX - LeRoy Miller April 2021
 
 #endif // __SMART_RESPONSE_XE__
