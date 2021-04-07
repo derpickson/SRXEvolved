@@ -21,6 +21,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
+
+/*
+Added SRXEdrawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color )
+Added SRXEwriteLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
+Added SRXEdrawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color)
+LeRoy Miller, kd8bxp April 2021
+Brutally lifted from Adafruit GFX library and modified to work with Smart Response XE 
+*/
+
 #include <Arduino.h>
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
@@ -918,3 +927,164 @@ byte bKey = 0;
    } // for iCol
    return bKey; // 0 if no keys pressed
 } /* SRXEGetKey() */
+
+// Brutally lifted from Adafruit GFX library and modified to almost work with Smart Response XE - LeRoy Miller, kd8bxp April 2021
+
+#define _swap_int16_t(a, b)                                                    \
+  {                                                                            \
+    int16_t t = a;                                                             \
+    a = b;                                                                     \
+    b = t;                                                                     \
+  }
+
+/*!
+   @brief    Draw a circle outline
+    @param    x0   Center-point x coordinate
+    @param    y0   Center-point y coordinate
+    @param    r   Radius of circle
+    @param    color 0 - off, to 3 (full on)
+*/
+void SRXEdrawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color ) {
+ int16_t f = 1  - r; //int16_t f = 1 - r;
+  int16_t ddF_x = 1; //int16_t ddF_x = 1;
+  int16_t ddF_y = -2 * r; //int16_t ddF_y = -2 * r;
+  int16_t x = 0; //int16_t x = 0;
+  int16_t y = r; //int16_t y = r;
+
+ byte bTemp[128];
+ static byte bColorToByte[4] = {0, 0x49, 0x92, 0xff};
+ memset(bTemp, bColorToByte[color], 3);
+
+  
+  SRXESetPosition(x0, y0 + r, 1,1 );
+  SRXEWriteDataBlock(bTemp, 2 );
+   
+  SRXESetPosition(x0, y0 - r, 1, 1 );
+  SRXEWriteDataBlock(bTemp, 2 );
+    
+  SRXESetPosition(x0 + r, y0, 1, 1 );
+  SRXEWriteDataBlock(bTemp, 2);
+    
+  SRXESetPosition(x0 - r, y0, 1, 1 );
+  SRXEWriteDataBlock(bTemp, 2 );
+  
+  while (x < y) {
+    if (f >= 0) {
+      y--;
+      ddF_y += 2; //ddF_y += 2;
+      f += ddF_y;
+    }
+    x++;
+    ddF_x += 2; //ddF_x += 2;
+    f += ddF_x;
+
+    //writePixel(x0 + x, y0 + y, color);
+    SRXESetPosition(x0 + x , (y0 + y) , 1, 1 ); //lower right arch
+    SRXEWriteDataBlock(bTemp, 2 );
+    
+    //writePixel(x0 - x, y0 + y, color);
+    SRXESetPosition(x0 - x, y0 + y, 1, 1 );
+    SRXEWriteDataBlock(bTemp, 2 );
+    
+    //writePixel(x0 + x, y0 - y, color);
+    SRXESetPosition(x0 + x, y0 - y, 1, 1 );
+    SRXEWriteDataBlock(bTemp, 2 );  
+    
+    //writePixel(x0 - x, y0 - y, color);
+    SRXESetPosition(x0 - x, y0 - y, 1, 1 );
+    SRXEWriteDataBlock(bTemp, 2 ); 
+    
+    //writePixel(x0 + y, y0 + x, color);
+    SRXESetPosition(x0 + y, y0 + x, 1, 1 );
+    SRXEWriteDataBlock(bTemp, 2 );
+    
+    //writePixel(x0 - y, y0 + x, color);
+    SRXESetPosition(x0 - y, y0 + x, 1, 1 );
+    SRXEWriteDataBlock(bTemp, 2 );
+    
+    //writePixel(x0 + y, y0 - x, color);
+    SRXESetPosition(x0 + y, y0 - x, 1, 1 );
+    SRXEWriteDataBlock(bTemp, 2 );
+    
+    //writePixel(x0 - y, y0 - x, color);
+    SRXESetPosition(x0 - y, y0 - x, 1, 1 );
+    SRXEWriteDataBlock(bTemp, 2 );
+    
+  }  
+}
+/*!
+   @brief    Write a line.  Bresenham's algorithm - thx wikpedia
+    @param    x0  Start point x coordinate
+    @param    y0  Start point y coordinate
+    @param    x1  End point x coordinate
+    @param    y1  End point y coordinate
+    @param    color 0 - off, to 3 (full on)
+*/
+void SRXEwriteLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color) {
+byte bTemp[128];
+ static byte bColorToByte[4] = {0, 0x49, 0x92, 0xff};
+ memset(bTemp, bColorToByte[color], 3);
+ 
+  int16_t steep = abs(y1 - y0) > abs(x1 - x0);
+  if (steep) {
+    _swap_int16_t(x0, y0);
+    _swap_int16_t(x1, y1);
+  }
+
+  if (x0 > x1) {
+    _swap_int16_t(x0, x1);
+    _swap_int16_t(y0, y1);
+  }
+
+  int16_t dx, dy;
+  dx = x1 - x0;
+  dy = abs(y1 - y0);
+
+  int16_t err = dx / 2;
+  int16_t ystep;
+
+  if (y0 < y1) {
+    ystep = 1;
+  } else {
+    ystep = -1;
+  }
+
+  for (; x0 <= x1; x0++) {
+    if (steep) {
+      
+      //writePixel(y0, x0, color);
+      SRXESetPosition(y0, x0, 1, 1 );
+      SRXEWriteDataBlock(bTemp, 2 ); 
+      
+    } else {
+      
+      //writePixel(x0, y0, color);
+      SRXESetPosition(x0, y0, 1, 1 );
+      SRXEWriteDataBlock(bTemp, 2 );
+      
+    }
+    err -= dy;
+    if (err < 0) {
+      y0 += ystep;
+      err += dx;
+    }
+  }
+}
+
+/*!
+   @brief   Draw a triangle with no fill color
+    @param    x0  Vertex #0 x coordinate
+    @param    y0  Vertex #0 y coordinate
+    @param    x1  Vertex #1 x coordinate
+    @param    y1  Vertex #1 y coordinate
+    @param    x2  Vertex #2 x coordinate
+    @param    y2  Vertex #2 y coordinate
+    @param    color 0 - off, to 3 (full on)
+*/
+void SRXEdrawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color) {
+SRXEwriteLine(x0, y0, x1, y1, color);
+  SRXEwriteLine(x1, y1, x2, y2, color);
+  SRXEwriteLine(x2, y2, x0, y0, color);
+}
+
+//end lifted from Adafruit GFX - LeRoy Miller April 2021

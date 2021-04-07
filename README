@@ -19,4 +19,15 @@ The first thing to do is initialize and clear the LCD. The pin numbers for the S
   SRXEInit(0xe7, 0xd6, 0xa2); // initialize display
 Next, you can draw some text or rectangles. The color can be 0-3 (0=off, 3=fully on)
   SRXEWriteString(0,120,"Hello World!", FONT_LARGE, 3, 0); // draw large black text at x=0,y=120, fg=3, bg=0
-  
+
+---------------
+Additions:
+
+Brutally lifted from Adafruit GFX library and modified to work with the Smart Response XE by LeRoy Miller, KD8BXP April 2021
+Added 
+SRXEdrawCircle (int16_t x0, int16_t y0, int16_t r, uint16 color);
+Where X0 and Y0 are the Center point of the circle, r is the radius, and color see above
+SRXEwriteLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
+Where X0, Y0 are the start point cooridinate, X1, Y1 are the end point coordinate, color see above.  
+SRXEdrawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
+Where X0, Y0 is the vertex 0 coordinate, X1, Y1 is the vertex 1 coordinate, X2, Y2 is the vertex 2 coordinate, color see above.  
