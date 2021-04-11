@@ -22,6 +22,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+// April 10, 2021 Added Inverse Code (this will reverse the screen)
+// SRXEInverse(0) normal, SRXEInverse(1) reverse after setting it is recommended to also clear the screen
+// Added SRXEClearScreen() - functionally the same as SRXEFill(0)
+// removed the need to set the iCSPin, iDCPin, iResetPin when calling SRXEInit() (simplified hopefully)
+// LeRoy Miller, KD8BXP April 2021
+
 /*
 Added SRXEdrawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color )
 Added SRXEwriteLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
@@ -62,6 +68,8 @@ static int iScrollOffset;
 static int scrollArea=LCD_HEIGHT;
 void SRXEFill(byte ucData);
 static void SRXEWriteCommand(unsigned char c);
+
+byte setInverse = 0; //Default, normal display
 
 typedef enum
 {
@@ -135,6 +143,7 @@ const char powerup[] PROGMEM = {
   1, 0x29, // Display ON
   0
 };
+
 
 
 uint8_t getPinInfo(uint8_t pin, volatile uint8_t **iDDR, volatile uint8_t **iPort, int bInput)
@@ -386,13 +395,15 @@ void SRXEPowerUp(void)
 // Initializes the LCD controller
 // Parameters: GPIO pin numbers used for the CS/DC/RST control lines
 //
-int SRXEInit(int iCS, int iDC, int iReset)
+
+int SRXEInit()
+//int SRXEInit(int iCS, int iDC, int iReset)
 {
   byte uc, ucTemp[8];
 
-  iCSPin = iCS;
-  iDCPin = iDC;
-  iResetPin = iReset;
+  iCSPin = 0xe7; //iCS;
+  iDCPin = 0xd6; //iDC;
+  iResetPin = 0xa2; //iReset;
 
   SPI_Init();
   mypinMode(iCSPin, OUTPUT);
@@ -625,18 +636,18 @@ void SRXERectangle(int x, int y, int cx, int cy, byte color, byte bFilled)
 //int SRXEWriteString(int x, int y, char *szMsg, int iSize, int iFGColor, int iBGColor)
 int SRXEWriteString(int x, int y, char *szMsg,int iSize,const unsigned char ucFont[], int iFGColor, int iBGColor) //small font 576 bytes
 {
-  int i, j, iLen;
-  unsigned char ucTemp[8], *s;
-  byte fgColor0, fgColor1, fgColor2, bgColor;
-
-  if (iFGColor > 3) iFGColor = 3;
-  if (iBGColor > 3) iBGColor = 3;
-  if (iFGColor == 3)
-  {
-    fgColor0 = 0xe0; fgColor1 = 0x1c; fgColor2 = 0x3;
-  }
-  else
-  {
+int i, j, iLen;
+unsigned char ucTemp[8], *s;
+byte fgColor0, fgColor1, fgColor2, bgColor;
+if (setInverse == 1) { iFGColor = map(iFGColor,0,3,3,0); } 
+    if (iFGColor > 3) iFGColor = 3;
+    if (iBGColor > 3) iBGColor = 3;
+    if (iFGColor == 3)
+    {
+      fgColor0 = 0xe0; fgColor1 = 0x1c; fgColor2 = 0x3;
+    }
+    else
+    {
     fgColor0 = (byte)iFGColor << 6; // first pixel 3-bit version of the color
     fgColor1 = (byte)iFGColor << 3; // second pixel
     fgColor2 = (byte)iFGColor;      // 3rd pixel
@@ -662,7 +673,6 @@ int SRXEWriteString(int x, int y, char *szMsg,int iSize,const unsigned char ucFo
       }
       else
       {
-        
          //s = (unsigned char *)&ucSmallFont[((unsigned char)szMsg[i]-32) * 6];
 		 s = (unsigned char *)&ucFont[((unsigned char)szMsg[i]-32) * 6];	
          memcpy_P(ucTemp, s, 6);
@@ -674,7 +684,6 @@ int SRXEWriteString(int x, int y, char *szMsg,int iSize,const unsigned char ucFo
       bMask = 1;
       for (ty = 0; ty < 8; ty++)
       {
-
         for (tx = 0; tx < iWidth - 6; tx += 3) // 3 sets of 3 pixels
 
         {
@@ -724,11 +733,9 @@ int SRXEWriteString(int x, int y, char *szMsg,int iSize,const unsigned char ucFo
       d = bTemp;
       for (ty = 0; ty < 8; ty++)
       {
-
         bMask = 1 << ty;
         for (tx = 0; tx < 9; tx += 3) // 3 sets of 3 pixels
-
-        {
+       {
           bOut = bgColor;
           if (ucTemp[tx] & bMask)
           {
@@ -763,19 +770,15 @@ int SRXEWriteString(int x, int y, char *szMsg,int iSize,const unsigned char ucFo
     {
       int tx, ty;
       byte bTemp[16], bMask, bOut, *d;
-
       //s = (unsigned char *)&ucSmallFont[((unsigned char)szMsg[i]-32) * 6];
       s = (unsigned char *)&ucFont[((unsigned char)szMsg[i]-32) * 6];
-
       memcpy_P(ucTemp, s, 6); // copy from FLASH memory
       // convert from 1-bpp to 2/3-bpp
       d = bTemp;
       for (ty = 0; ty < 8; ty++)
       {
-
         bMask = 1 << ty;
         for (tx = 0; tx < 6; tx += 3) // 2 sets of 3 pixels
-
         {
           bOut = bgColor;
           if (ucTemp[tx] & bMask)
@@ -809,15 +812,17 @@ int SRXEWriteString(int x, int y, char *szMsg,int iSize,const unsigned char ucFo
 // e.g. all off (0x00) or all on (0xff)
 void SRXEFill(byte ucData)
 {
-  int y;
-  byte temp[128];
+  if (setInverse == 1) {ucData = map(ucData,0,255,255,0);}
+int y;
+byte temp[128];
 
-  SRXESetPosition(0, 0, 384, 136);
-  for (y = 0; y < 136; y++)
-  {
-    memset(temp, ucData, 128); // have to do this because the bytes get overwritten
-    SRXEWriteDataBlock(temp, 128); // fill with data byte
-  }
+     SRXESetPosition(0, 0, 384, 136);
+     for (y=0; y<136; y++)
+     {
+          memset(temp, ucData, 128); // have to do this because the bytes get overwritten
+          SRXEWriteDataBlock(temp, 128); // fill with data byte
+     }
+
 } /* SRXEFill() */
 
 
@@ -1035,6 +1040,42 @@ byte SRXEGetKey(void)
   return bKey; // 0 if no keys pressed
 } /* SRXEGetKey() */
 
+
+//Reverse Color order if Inverse is set true
+int SRXESetInverse(byte Inverse) {
+  if (setInverse == 0 && Inverse == 1) {
+  int BUFFERSIZE = 4;
+  for (int i=0, j = BUFFERSIZE-1; i< BUFFERSIZE/2; i++, j--)
+  {
+    int temp = bColorToByte[i];
+    bColorToByte[i] = bColorToByte[j];
+    bColorToByte[j] = temp;
+  }
+  setInverse = Inverse;
+  }
+  if (setInverse == 1 && Inverse == 1) { 
+    //do nothing
+  }
+  if (setInverse == 1 && Inverse == 0) {
+   int BUFFERSIZE = 4;
+  for (int i=0, j = BUFFERSIZE-1; i< BUFFERSIZE/2; i++, j--)
+  {
+    int temp = bColorToByte[i];
+    bColorToByte[i] = bColorToByte[j];
+    bColorToByte[j] = temp;
+  }
+    setInverse = Inverse;
+  }
+  if (setInverse == 0 && Inverse == 0) {
+    //do nothing
+  }
+}
+
+
+void SRXEClearScreen() {
+  SRXEFill(0x00); //clear screen
+}
+
 // Brutally lifted from Adafruit GFX library and modified to almost work with Smart Response XE - LeRoy Miller, kd8bxp April 2021
 
 #define _swap_int16_t(a, b)                                                    \
@@ -1195,3 +1236,4 @@ SRXEwriteLine(x0, y0, x1, y1, color);
 }
 
 //end lifted from Adafruit GFX - LeRoy Miller April 2021
+

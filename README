@@ -31,7 +31,7 @@ I have added some modification to Larry's work
 // SYM + Z      --> *  
 // SYM + X      --> /  
 // square root  --> ESC  
-  
+
 // 8/12/2019 fdufnews added function to define scroll area  
 //  Set Scroll Area  
 // inputs:  
@@ -85,3 +85,10 @@ In the other directory, you'll find the TTF files for the fonts from jared.geek.
 A set of test_fonts which were found in various (now unknown) places across the internet, with some notes on creating fonts, bitmaps, and icons.
 
 April 10, 2021 a beginning ICON set was added to the examples, this is very much a work in progress.
+
+April 10, 2021 Added Inverse Code (this will reverse the screen)
+SRXEInverse(0) normal, SRXEInverse(1) reverse after setting it is recommended to also clear the screen
+Added SRXEClearScreen() - functionally the same as SRXEFill(0)
+removed the need to set the iCSPin, iDCPin, iResetPin when calling SRXEInit() (simplified hopefully)
+-LeRoy Miller, KD8BXP April 2021
+

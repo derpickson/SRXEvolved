@@ -65,7 +65,9 @@ void SRXEPowerDown(void);
 // Initializes the LCD controller
 // Parameters: GPIO pin numbers used for the CS/DC/RST control lines
 //
-int SRXEInit(int iCS, int iDC, int iReset);
+
+int SRXEInit();
+//int SRXEInit(int iCS, int iDC, int iReset);
 //
 // Send commands to position the "cursor" to the given
 // row and column and width and height of the memory window
@@ -153,6 +155,10 @@ int SRXEFlashWritePage(uint32_t ulAddr, uint8_t *pSrc);
 // Read N bytes from SPI flash
 //
 int SRXEFlashRead(uint32_t ulAddr, uint8_t *pDest, int iLen);
+
+
+int SRXESetInverse(byte Inverse);
+void SRXEClearScreen();
 
 // Brutally lifted from Adafruit GFX library and modified to almost work with Smart Response XE - LeRoy Miller, kd8bxp April 2021
 
