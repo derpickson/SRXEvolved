@@ -20,3 +20,14 @@ The first thing to do is initialize and clear the LCD. The pin numbers for the S
 Next, you can draw some text or rectangles. The color can be 0-3 (0=off, 3=fully on)
   SRXEWriteString(0,120,"Hello World!", FONT_LARGE, 3, 0); // draw large black text at x=0,y=120, fg=3, bg=0
   
+
+---------
+Additions
+---------
+
+April 10, 2021 Added Inverse Code (this will reverse the screen)
+SRXEInverse(0) normal, SRXEInverse(1) reverse after setting it is recommended to also clear the screen
+Added SRXEClearScreen() - functionally the same as SRXEFill(0)
+removed the need to set the iCSPin, iDCPin, iResetPin when calling SRXEInit() (simplified hopefully)
+-LeRoy Miller, KD8BXP April 2021
+
