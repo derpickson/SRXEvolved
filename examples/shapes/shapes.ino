@@ -47,8 +47,8 @@
 
 void setup() {
   
- SRXEInit(0xe7, 0xd6, 0xa2); // Initialize the LCD
- SRXEFill(0); //clear screen
+ SRXEInit(); // Initialize the LCD
+ SRXEClearScreen(); //clear screen
  //SRXEdrawCircle(80,80, 50, 3);
  //SRXEdrawCircle(30, 70, 20,3);
  SRXEdrawCircle(40, 40, 40, 3);

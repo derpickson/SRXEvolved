@@ -47,34 +47,24 @@
 
 void setup() {
   
-  SRXEInit(0xe7, 0xd6, 0xa2); // Initialize the LCD
+  SRXEInit(); // Initialize the LCD
   SRXEWriteString(0, 0,"Hello World",FONT_LARGE, normal, 3, 0);
   SRXEWriteString(0,30,"Hello World",FONT_MEDIUM, small, 3, 0);
   SRXEWriteString(0,60,"Hello World",FONT_NORMAL, normal, 3, 0);
   SRXEWriteString(0,96,"Hello World",FONT_SMALL, small, 3, 0);
 
-delay(5 * 1000);
-
-  //SRXEInit(0xe7, 0xd6, 0xa2); // Initialize the LCD
-  //mydigitalWrite(0xa2, HIGH);
-  //delay(50);
-  //mydigitalWrite(0xa2, LOW);
-  //delay(5);
-  //mydigitalWrite(0xa2, HIGH);
-  //delay(150);
-  SRXEFill(0); //clear screen
+  delay(5 * 1000);
+  SRXEClearScreen(); //clear screen
   
   SRXEWriteString(0, 0,"Hello World",FONT_LARGE, formplex12, 3, 0);
   SRXEWriteString(0,30,"Hello World",FONT_MEDIUM, fivexfive, 3, 0);
   SRXEWriteString(0,60,"Hello World",FONT_NORMAL, formplex12, 3, 0);
   SRXEWriteString(0,96,"Hello World",FONT_SMALL, fivexfive, 3, 0);
-delay(1000);
-SRXEScroll(90); //causes lines on screen that don't go away
-
- delay(5 * 1000);
- SRXEScrollReset();
- SRXEFill(0);
- SRXEWriteString(0, 30,"Hello World",FONT_LARGE, formplex12, 3, 0);
+  
+  delay(5 * 1000);
+  SRXEClearScreen();
+  
+  SRXEWriteString(0, 30,"Hello World",FONT_LARGE, formplex12, 3, 0);
   SRXEWriteString(0,0,"Hello World",FONT_MEDIUM, fivexfive, 3, 0);
   SRXEWriteString(0,90,"Hello World",FONT_NORMAL, formplex12, 3, 0);
   SRXEWriteString(0,60,"Hello World",FONT_SMALL, fivexfive, 3, 0);

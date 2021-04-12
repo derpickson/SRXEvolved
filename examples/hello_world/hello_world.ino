@@ -8,7 +8,7 @@
    Evaluate text display with the different fonts (when t is pressed)
 */
 
-#include <SmartResponseXE.h>
+#include "SmartResponseXE.h"
 #include "logo_rle.h"
 
 int TEXT_WIDTH = 384;
@@ -219,7 +219,7 @@ void host_splashscreen(void) {
 void setup() {
   setBatStat(); // ADC setup
 
-  SRXEInit(0xe7, 0xd6, 0xa2); // initialize and clear display // CS, D/C, RESET
+  SRXEInit(); // initialize and clear display // CS, D/C, RESET
 
   host_splashscreen();  // displays the splashscreen
 

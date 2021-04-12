@@ -49,7 +49,7 @@
 
 void setup() {
   
-  SRXEInit(0xe7, 0xd6, 0xa2); // Initialize the LCD
+  SRXEInit(); // Initialize the LCD
   
   //The ICON set is a work in progress, it contains typical symbols found on your keyboard (!, @, #, $, ect)
   //It also contains a "skinny" number set 0 - 9.

@@ -47,7 +47,7 @@
 
 void setup() {
   
-  SRXEInit(0xe7, 0xd6, 0xa2); // Initialize the LCD
+  SRXEInit(); // Initialize the LCD
   SRXEWriteString(0, 0,"Acme 5 Outlines Font (Small/Medium)",FONT_LARGE, normal, 3, 0);
  
   SRXEWriteString(0,20,"ABCDEFGHIJKLMNOPQRSTUV",FONT_MEDIUM, acme_5_outlines, 3, 0);
