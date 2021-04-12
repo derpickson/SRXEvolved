@@ -8,8 +8,24 @@
    Evaluate text display with the different fonts (when t is pressed)
 */
 
+/*
+ * Original version of this sketch by fdufnews https://github.com/fdufnews/SMART-Response-XE-Low_level
+ * Slightly modified to work with changes made to the SmartResponseXE library by LeRoy Miller, kd8bxp April 2021
+ * Original SmartResponseXE library by Larry Bank, bitbank2 https://github.com/bitbank2/SmartResponseXE
+ * 
+ * Other notes: b, n from above don't appear to do anything
+ *              s preforms a scroll test
+ *  buzzer, led need to be added to the smart response device as per instructions from here: https://github.com/fdufnews/SMART-Response-XE-schematics            
+ *  The sketch works without modify your smart response xe.
+ */
+
 #include "SmartResponseXE.h"
 #include "logo_rle.h"
+#include "fonts/fonts.h" //These are the Original fonts that were included with the library (Removed from the library, renamed, and included here.) Two fonts are included here: font name: normal size: normal/large, font name: small size: small/medium
+
+// The power button is connected to PD2 (RX1) and signals INT2
+#define POWER_BUTTON 20
+#define BUZZER 3
 
 int TEXT_WIDTH = 384;
 int TEXT_HEIGHT = 136;
@@ -59,29 +75,29 @@ void initAppDisplay(void) {
 
   SRXEFill(0);
   // Next, you can draw some text or rectangles. The color can be 0-3 (0=off, 3=fully on)
-  SRXEWriteString(60, 2, "Hello World!", FONT_LARGE, 3, 0); // (int x, int y, char *szMsg, int iSize, int iFGColor, int iBGColor)
-  SRXEWriteString(60, 22, "Battery:", FONT_LARGE, 3, 0);
-  SRXEWriteString(60, 42, "Uptime :", FONT_LARGE, 3, 0);
-  SRXEWriteString(60, 62, "Key    :", FONT_LARGE, 3, 0);
+  SRXEWriteString(60, 2, "Hello World!", FONT_LARGE, normal, 3, 0); // (int x, int y, char *szMsg, int iSize, int iFGColor, int iBGColor)
+  SRXEWriteString(60, 22, "Battery:", FONT_LARGE, normal, 3, 0);
+  SRXEWriteString(60, 42, "Uptime :", FONT_LARGE, normal, 3, 0);
+  SRXEWriteString(60, 62, "Key    :", FONT_LARGE, normal, 3, 0);
 
   // Draw a rectanle on each side of the screen
   SRXERectangle(0, 0, 17, 135, 0x1, 0x1); // (int x, int y, int cx, int cy, byte color, byte bFilled)
   SRXERectangle(110, 0, 17, 135, 0x1, 0x1);
 
   // Draw arrows pointing to the soft keys
-  SRXEWriteString(0, 2,  "< A", FONT_LARGE, 3, 1);
-  SRXEWriteString(0, 32, "< B", FONT_LARGE, 3, 1);
-  SRXEWriteString(0, 62, "< C", FONT_LARGE, 3, 1);
-  SRXEWriteString(0, 92, "< D", FONT_LARGE, 3, 1);
-  SRXEWriteString(0, 122, "< E", FONT_LARGE, 3, 1);
+  SRXEWriteString(0, 2,  "< A", FONT_LARGE, normal, 3, 1);
+  SRXEWriteString(0, 32, "< B", FONT_LARGE, normal, 3, 1);
+  SRXEWriteString(0, 62, "< C", FONT_LARGE, normal, 3, 1);
+  SRXEWriteString(0, 92, "< D", FONT_LARGE, normal, 3, 1);
+  SRXEWriteString(0, 122, "< E", FONT_LARGE, normal, 3, 1);
 
   int charnum = 3;
   int rightColX = TEXT_WIDTH - (16 * charnum);
-  SRXEWriteString(rightColX, 2,  "F >", FONT_LARGE, 3, 1);
-  SRXEWriteString(rightColX, 32, "G >", FONT_LARGE, 3, 1);
-  SRXEWriteString(rightColX, 62, "H >", FONT_LARGE, 3, 1);
-  SRXEWriteString(rightColX, 92, "I >", FONT_LARGE, 3, 1);
-  SRXEWriteString(rightColX, 122, "J >", FONT_LARGE, 3, 1);
+  SRXEWriteString(rightColX, 2,  "F >", FONT_LARGE, normal, 3, 1);
+  SRXEWriteString(rightColX, 32, "G >", FONT_LARGE, normal, 3, 1);
+  SRXEWriteString(rightColX, 62, "H >", FONT_LARGE, normal, 3, 1);
+  SRXEWriteString(rightColX, 92, "I >", FONT_LARGE, normal, 3, 1);
+  SRXEWriteString(rightColX, 122, "J >", FONT_LARGE, normal, 3, 1);
 
   // Draw some rectangles with various fill and color
   SRXERectangle(25, 115, 15, 15, 0x3, 0x0);
@@ -89,9 +105,9 @@ void initAppDisplay(void) {
   SRXERectangle(70, 115, 15, 15, 0x2, 0x1);
   SRXERectangle(90, 115, 15, 15, 0x3, 0x1);
 
-  SRXEWriteString(60, 82, "Small 0123456789", FONT_SMALL, 3, 0);
-  SRXEWriteString(168, 82, "Normal 0123456789", FONT_NORMAL, 3, 0);
-  SRXEWriteString(60, 92, "Medium 0123456789", FONT_MEDIUM, 3, 0);
+  SRXEWriteString(60, 82, "Small 0123456789", FONT_SMALL, small, 3, 0);
+  SRXEWriteString(168, 82, "Normal 0123456789", FONT_NORMAL, normal, 3, 0);
+  SRXEWriteString(60, 92, "Medium 0123456789", FONT_MEDIUM, small, 3, 0);
 
   // Draw a vertical and horizontal line
   SRXEVerticalLine(DRAW_WIDTH / 2, 107, TEXT_HEIGHT - 84, 0x3); // int x, int y, int height, byte color // color options: 0x0 - 0x3
@@ -126,33 +142,37 @@ void testText(void) {
     SRXEFill(0); // clear screen
     startTime = micros();
     for (line = 0, nbLine = 0; line < (TEXT_HEIGHT - inc + 1); line += inc, nbLine++) {
-      SRXEWriteString(0, line, myString, font, 3, 0);
+      if (font == 0 || font == 2) {
+      SRXEWriteString(0, line, myString, font, normal, 3, 0); 
+      } else if (font == 1 || font == 3) {
+        SRXEWriteString(0, line, myString, font, small, 3, 0);
+      }
     }
     timeItTook[font] = micros() - startTime;
     SRXERectangle(8, 16, 48, 54, 0, 1);
     SRXERectangle(8, 16, 48, 54, 3, 0);
     snprintf(buf, sizeof(buf) - 1, "%2d", nbLine);
-    SRXEWriteString(33, 20, buf, FONT_MEDIUM, 3, 0);
-    SRXEWriteString(69, 20, "Lines", FONT_MEDIUM, 3, 0);
+    SRXEWriteString(33, 20, buf, FONT_MEDIUM, small, 3, 0);
+    SRXEWriteString(69, 20, "Lines", FONT_MEDIUM, small, 3, 0);
     snprintf(buf, sizeof(buf) - 1, "%lu us", timeItTook[font]);
-    SRXEWriteString(33, 36, buf, FONT_MEDIUM, 3, 0);
-    SRXEWriteString(30, 52, "Press a key", FONT_MEDIUM, 3, 0);
+    SRXEWriteString(33, 36, buf, FONT_MEDIUM, small, 3, 0);
+    SRXEWriteString(30, 52, "Press a key", FONT_MEDIUM, small, 3, 0);
 
     while (SRXEGetKey() == 0);
   }
   SRXEFill(0);
-  SRXEWriteString(30, 20, "Normal: ", FONT_MEDIUM, 3, 0);
+  SRXEWriteString(30, 20, "Normal: ", FONT_MEDIUM, small, 3, 0);
   snprintf(buf, sizeof(buf) - 1, "%lu us", timeItTook[0]);
-  SRXEWriteString(150, 20, buf, FONT_MEDIUM, 3, 0);
-  SRXEWriteString(30, 40, "Small : ", FONT_MEDIUM, 3, 0);
+  SRXEWriteString(150, 20, buf, FONT_MEDIUM, small, 3, 0);
+  SRXEWriteString(30, 40, "Small : ", FONT_MEDIUM, small, 3, 0);
   snprintf(buf, sizeof(buf) - 1, "%lu us", timeItTook[1]);
-  SRXEWriteString(150, 40, buf, FONT_MEDIUM, 3, 0);
-  SRXEWriteString(30, 60, "Medium: ", FONT_MEDIUM, 3, 0);
+  SRXEWriteString(150, 40, buf, FONT_MEDIUM, small, 3, 0);
+  SRXEWriteString(30, 60, "Medium: ", FONT_MEDIUM, small, 3, 0);
   snprintf(buf, sizeof(buf) - 1, "%lu us", timeItTook[2]);
-  SRXEWriteString(150, 60, buf, FONT_MEDIUM, 3, 0);
-  SRXEWriteString(30, 80, "Large : ", FONT_MEDIUM, 3, 0);
+  SRXEWriteString(150, 60, buf, FONT_MEDIUM, small, 3, 0);
+  SRXEWriteString(30, 80, "Large : ", FONT_MEDIUM, small, 3, 0);
   snprintf(buf, sizeof(buf) - 1, "%lu us", timeItTook[3]);
-  SRXEWriteString(150, 80, buf, FONT_MEDIUM, 3, 0);
+  SRXEWriteString(150, 80, buf, FONT_MEDIUM, small, 3, 0);
   while (SRXEGetKey() == 0);
 }
 
@@ -170,8 +190,8 @@ void testScroll(void){
   // fill screen with text
   for(lineNum=0; lineNum<17; lineNum++){
     snprintf(buf, sizeof(buf) - 1, "%u", lineNum);
-    SRXEWriteString(0, lineNum*8, buf, FONT_NORMAL, 3, 0);
-    SRXEWriteString(27, lineNum*8, myString, FONT_NORMAL, 3, 0);
+    SRXEWriteString(0, lineNum*8, buf, FONT_NORMAL, normal, 3, 0);
+    SRXEWriteString(27, lineNum*8, myString, FONT_NORMAL, normal, 3, 0);
   }
   delay(3000);
   // scroll text
@@ -180,7 +200,7 @@ void testScroll(void){
     SRXEScroll(1);
     delay(lineNum%16==0?150:20);
   }
-  SRXEWriteString(0, 128, string2, FONT_NORMAL, 3, 0);
+  SRXEWriteString(0, 128, string2, FONT_NORMAL, normal, 3, 0);
   SRXEScrollArea(0,160,0); // restore default values
   SRXEScrollReset();
   delay(3000);
@@ -199,14 +219,14 @@ void host_splashscreen(void) {
   unsigned long currenTime = millis();
 
   SRXELoadBitmapRLE(0, 0, bitmap_logo_rle);
-  SRXEWriteString(startHit, 110, "Hit a key         ", FONT_MEDIUM, 3, 1);
+  SRXEWriteString(startHit, 110, "Hit a key         ", FONT_MEDIUM, small, 3, 1);
   while (!SRXEGetKey()) {
     currenTime = millis();
     if (currenTime - lastTimeArrow >= pauseArrow) {
-      SRXEWriteString(pos, 110, " ", FONT_MEDIUM, 3, 1);
+      SRXEWriteString(pos, 110, " ", FONT_MEDIUM, small, 3, 1);
       pos += 12;
       if (pos > startHit + 120 + lengthArrow) pos = startArrow;
-      SRXEWriteString(pos, 110, ">", FONT_MEDIUM, 3, 1);
+      SRXEWriteString(pos, 110, ">", FONT_MEDIUM, small, 3, 1);
       lastTimeArrow = currenTime;
     }
   };
@@ -263,14 +283,14 @@ void loop() {
     // Battery state
     memset (buf, 0, sizeof(buf));
     snprintf(buf, sizeof(buf) - 1, "%u", getBatStat());
-    SRXEWriteString(189, 22, "      ", FONT_LARGE, 3, 0);
-    SRXEWriteString(189, 22, buf, FONT_LARGE, 3, 0);
+    SRXEWriteString(189, 22, "      ", FONT_LARGE, normal, 3, 0);
+    SRXEWriteString(189, 22, buf, FONT_LARGE, normal, 3, 0);
 
     // clear the previous text and draw new uptime
     memset (buf, 0, sizeof(buf));
     snprintf(buf, sizeof(buf) - 1, "%u", counter);
-    SRXEWriteString(189, 42, "      ", FONT_LARGE, 3, 0);
-    SRXEWriteString(189, 42, buf, FONT_LARGE, 3, 0);
+    SRXEWriteString(189, 42, "      ", FONT_LARGE, normal, 3, 0);
+    SRXEWriteString(189, 42, buf, FONT_LARGE, normal, 3, 0);
 
     counter++;
   }
@@ -284,8 +304,8 @@ void loop() {
     if (char key = SRXEGetKey()) {
       memset (buf, 0, sizeof(buf));
       snprintf(buf, sizeof(buf) - 1, "%c, %02X", key < 0x20 ? 0x20 : key, (byte)key);
-      SRXEWriteString(189, 62, "      ", FONT_LARGE, 3, 0);
-      SRXEWriteString(189, 62, buf, FONT_LARGE, 3, 0);
+      SRXEWriteString(189, 62, "      ", FONT_LARGE, normal, 3, 0);
+      SRXEWriteString(189, 62, buf, FONT_LARGE, normal, 3, 0);
       // action linked to some keypress
       // l key toggle LED state
       if (key == 'l') {
