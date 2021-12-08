@@ -1,3 +1,46 @@
+------WIP-------
+To preface, I have somewhat (very) limited experience with these MCUs, such as the ATTiny. 
+Most of my experience is with Raspberry Pi's and other SBCs
+This project will be a learning experience
+I have no expectations of completing all of these features, but any progress is good progress.
+
+Planning on merging in changes from other repos on github as well as adding some new features (below). 
+Might extract existing firmware from device in order to glean insight into potential features to add.
+
+Hardware features may include: 
+  - First and foremost, a power switch instead of a button (will route power switch through battery charging module).
+  - Ethernet port(s) (for LAN packet sniffing and other operations).
+  - Wi-Fi module (for WiFi security research and other operations).
+  - Battery charging module: 5V input for charging, 5V output to devices, and ~3.7V for battery.
+  - LiPo battery (undetermined size, will assess space limitations).
+  - RFID reader and (hopefully) cloner module (EM-18 Reader may be an option, but I'm not sure it can clone).
+  - More to come (as ideas pop up).
+
+Software features may include:
+  - TBD, it's late and I'm tired.
+
+REFERENCES: 
+
+1.) Larry aka bitbank2, original creator of SMART Response XE support library.
+  - https://github.com/bitbank2/SmartResponseXE
+2.) LeRoy aka kd8bxp for their feature additions of fonts and shapes etc.
+  - https://github.com/kd8bxp/SmartResponseXE
+3.) ea, for their spectrum analyzer feature additions.
+  - https://github.com/ea/srxe_cc1101
+  - https://github.com/ea/CC1101
+
+KUDOS:
+
+1.) securelyfitz, programmer POGO adapter board.
+  - https://github.com/securelyfitz/smartresponse
+2.) pdxbadgers, general Zigbee work and for living in an awesome state (go Beavers!).
+  - https://github.com/pdxbadgers/5ohBEE-2019
+
+CHANGELOG(PRE-FORK)
+
+----------------
+kd8bxp additions:
+
 Based on Larry's SMART Response XE support library
 
 Features:
